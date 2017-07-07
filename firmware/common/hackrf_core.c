@@ -323,7 +323,7 @@ gcd(uint32_t u, uint32_t v)
 
 	return u << s;
 }
-
+#ifndef HNCH
 bool sample_rate_frac_set(uint32_t rate_num, uint32_t rate_denom)
 {
 	const uint64_t VCO_FREQ = 800 * 1000 * 1000; /* 800 MHz */
@@ -456,6 +456,7 @@ bool baseband_filter_bandwidth_set(const uint32_t bandwidth_hz) {
 
 	return bandwidth_hz_real != 0;
 }
+#endif
 
 /* clock startup for LPC4320 configure PLL1 to max speed (204MHz).
 Note: PLL1 clock is used by M4/M0 core, Peripheral, APB1. */ 
@@ -467,6 +468,7 @@ void cpu_clock_init(void)
 	/* use IRC as clock source for APB3 */
 	CGU_BASE_APB3_CLK = CGU_BASE_APB3_CLK_CLK_SEL(CGU_SRC_IRC);
 
+#ifndef HNCH
 	i2c_bus_start(clock_gen.bus, &i2c_config_si5351c_slow_clock);
 
 	si5351c_disable_all_outputs(&clock_gen);
@@ -497,6 +499,7 @@ void cpu_clock_init(void)
 	/* MS6/CLK6 is unused. */
 	/* MS7/CLK7 is unused. */
 
+
 	/* Set to 10 MHz, the common rate between Jawbreaker and HackRF One. */
 	sample_rate_set(10000000);
 
@@ -511,6 +514,7 @@ void cpu_clock_init(void)
 	/* Kick I2C0 down to 400kHz when we switch over to APB1 clock = 204MHz */
 	i2c_bus_start(clock_gen.bus, &i2c_config_si5351c_fast_clock);
 
+#endif
 	/*
 	 * 12MHz clock is entering LPC XTAL1/OSC input now.
 	 * On HackRF One and Jawbreaker, there is a 12 MHz crystal at the LPC.
@@ -585,7 +589,7 @@ void cpu_clock_init(void)
 	CGU_BASE_SSP1_CLK = CGU_BASE_SSP1_CLK_AUTOBLOCK(1)
 			| CGU_BASE_SSP1_CLK_CLK_SEL(CGU_SRC_PLL1);
 
-#if (defined JAWBREAKER || defined HACKRF_ONE)
+#if (defined JAWBREAKER || defined HACKRF_ONE || defined HNCH)
 	/* Disable unused clocks */
 	/* Start with PLLs */
 	CGU_PLL0AUDIO_CTRL = CGU_PLL0AUDIO_CTRL_PD(1);
@@ -828,11 +832,13 @@ void pin_setup(void) {
 	/* enable input on SCL and SDA pins */
 	SCU_SFSI2C0 = SCU_I2C0_NOMINAL;
 
+#ifndef HNCH
 	spi_bus_start(&spi_bus_ssp1, &ssp_config_max2837);
 
 	mixer_bus_setup(&mixer);
 
 	rf_path_pin_setup(&rf_path);
+#endif
 	
 	/* Configure external clock in */
 	scu_pinmux(SCU_PINMUX_GP_CLKIN, SCU_CLK_IN | SCU_CONF_FUNCTION1);

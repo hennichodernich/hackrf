@@ -20,6 +20,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
+#ifndef HNCH
 #include "rf_path.h"
 
 #include <libopencm3/lpc43xx/scu.h>
@@ -448,3 +449,5 @@ void rf_path_set_antenna(rf_path_t* const rf_path, const uint_fast8_t enable) {
 
 	switchctrl_set(rf_path, rf_path->switchctrl);
 }
+
+#endif

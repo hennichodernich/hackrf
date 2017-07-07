@@ -51,13 +51,22 @@
 static const usb_request_handler_fn vendor_request_handler[] = {
 	NULL,
 	usb_vendor_request_set_transceiver_mode,
+#ifndef HNCH
 	usb_vendor_request_write_max2837,
 	usb_vendor_request_read_max2837,
 	usb_vendor_request_write_si5351c,
 	usb_vendor_request_read_si5351c,
 	usb_vendor_request_set_sample_rate_frac,
 	usb_vendor_request_set_baseband_filter_bandwidth,
-#ifdef RAD1O
+#else
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+#endif
+#if (defined RAD1O || defined HNCH)
 	NULL, // write_rffc5071 not used
 	NULL, // read_rffc5071 not used
 #else
@@ -70,18 +79,28 @@ static const usb_request_handler_fn vendor_request_handler[] = {
 	NULL, // used to be write_cpld
 	usb_vendor_request_read_board_id,
 	usb_vendor_request_read_version_string,
+#ifndef HNCH
 	usb_vendor_request_set_freq,
 	usb_vendor_request_set_amp_enable,
 	usb_vendor_request_read_partid_serialno,
 	usb_vendor_request_set_lna_gain,
 	usb_vendor_request_set_vga_gain,
 	usb_vendor_request_set_txvga_gain,
+#else
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+#endif
 	NULL, // was set_if_freq
 #ifdef HACKRF_ONE
 	usb_vendor_request_set_antenna_enable,
 #else
 	NULL,
 #endif
+#ifndef HNCH
 	usb_vendor_request_set_freq_explicit,
 	usb_vendor_request_read_wcid,  // USB_WCID_VENDOR_REQ
 	usb_vendor_request_init_sweep,
@@ -90,6 +109,16 @@ static const usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_set_hw_sync_mode,
 	usb_vendor_request_reset,
 	usb_vendor_request_operacake_set_ranges
+#else
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL
+#endif
 };
 
 static const uint32_t vendor_request_handler_count =
@@ -169,11 +198,16 @@ int main(void) {
 	delay(1000000);
 #endif
 	cpu_clock_init();
+	led_on(LED1);
 
-	usb_set_descriptor_by_serial_number();
+	//usb_set_descriptor_by_serial_number();
+	usb_descriptor_string_serial_number[0] = 2;
+	usb_descriptor_string_serial_number[1] = USB_DESCRIPTOR_TYPE_STRING;
+	led_on(LED2);
 
 	usb_set_configuration_changed_cb(usb_configuration_changed);
 	usb_peripheral_reset();
+	led_on(LED3);
 	
 	usb_device_init(0, &usb_device);
 	
@@ -190,13 +224,15 @@ int main(void) {
 	hackrf_ui_init();
 
 	usb_run(&usb_device);
-	
+
+#ifndef HNCH
 	rf_path_init(&rf_path);
 	operacake_init();
-
+#endif
 	unsigned int phase = 0;
 
 	while(true) {
+#ifndef HNCH
 		// Check whether we need to initiate a CPLD update
 		if (start_cpld_update)
 			cpld_update();
@@ -206,7 +242,7 @@ int main(void) {
 			start_sweep_mode = false;
 			sweep_mode();
 		}
-
+#endif
 		// Set up IN transfer of buffer 0.
 		if ( usb_bulk_buffer_offset >= 16384
 		     && phase == 1

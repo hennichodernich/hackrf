@@ -37,7 +37,9 @@ extern "C"
 
 #include "max2837.h"
 #include "max5864.h"
+#ifndef HNCH
 #include "mixer.h"
+#endif
 #include "w25q80bv.h"
 #include "sgpio.h"
 #include "rf_path.h"
@@ -47,6 +49,7 @@ extern "C"
 #define BOARD_ID_JAWBREAKER 1
 #define BOARD_ID_HACKRF_ONE 2
 #define BOARD_ID_RAD1O      3
+#define BOARD_ID_HNCH       4
 
 #ifdef JAWBREAKER
 #define BOARD_ID BOARD_ID_JAWBREAKER
@@ -58,6 +61,10 @@ extern "C"
 
 #ifdef RAD1O
 #define BOARD_ID BOARD_ID_RAD1O
+#endif
+
+#ifdef HNCH
+#define BOARD_ID BOARD_ID_HNCH
 #endif
 
 /*
@@ -112,7 +119,7 @@ extern "C"
 #define SCU_PINMUX_SGPIO5   (P6_6)
 #define SCU_PINMUX_SGPIO6   (P2_2)
 #define SCU_PINMUX_SGPIO7   (P1_0)
-#if (defined JAWBREAKER || defined HACKRF_ONE || defined RAD1O)
+#if (defined JAWBREAKER || defined HACKRF_ONE || defined RAD1O || defined HNCH)
 #define SCU_PINMUX_SGPIO8   (P9_6)
 #endif
 #define SCU_PINMUX_SGPIO9   (P4_3)
@@ -255,7 +262,9 @@ extern const ssp_config_t ssp_config_max5864;
 
 extern max2837_driver_t max2837;
 extern max5864_driver_t max5864;
+#ifndef HNCH
 extern mixer_driver_t mixer;
+#endif
 extern w25q80bv_driver_t spi_flash;
 extern sgpio_config_t sgpio_config;
 extern rf_path_t rf_path;

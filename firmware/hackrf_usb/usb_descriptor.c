@@ -32,6 +32,8 @@
 #define USB_PRODUCT_ID			(0x604B)
 #elif RAD1O
 #define USB_PRODUCT_ID			(0xCC15)
+#elif HNCH
+#define USB_PRODUCT_ID			(0x0815)
 #else
 #define USB_PRODUCT_ID			(0xFFFF)
 #endif
@@ -159,6 +161,7 @@ uint8_t usb_descriptor_string_languages[] = {
 	USB_WORD(USB_STRING_LANGID),	// wLANGID
 };
 
+#ifndef HNCH
 uint8_t usb_descriptor_string_manufacturer[] = {
 	40,					// bLength
 	USB_DESCRIPTOR_TYPE_STRING,	    // bDescriptorType
@@ -182,6 +185,27 @@ uint8_t usb_descriptor_string_manufacturer[] = {
 	't', 0x00,
 	's', 0x00,
 };
+#else
+uint8_t usb_descriptor_string_manufacturer[] = {
+	32,					// bLength
+	USB_DESCRIPTOR_TYPE_STRING,	    // bDescriptorType
+	'h', 0x00,
+	'e', 0x00,
+	'n', 0x00,
+	'n', 0x00,
+	'i', 0x00,
+	'c', 0x00,
+	'h', 0x00,
+	'o', 0x00,
+	'd', 0x00,
+	'e', 0x00,
+	'r', 0x00,
+	'n', 0x00,
+	'i', 0x00,
+	'c', 0x00,
+	'h', 0x00,
+};
+#endif
 
 uint8_t usb_descriptor_string_product[] = {
 #ifdef HACKRF_ONE
@@ -217,6 +241,18 @@ uint8_t usb_descriptor_string_product[] = {
 	'k', 0x00,
 	'e', 0x00,
 	'r', 0x00,
+#elif HNCH
+	20,						// bLength
+	USB_DESCRIPTOR_TYPE_STRING,		// bDescriptorType
+	'h', 0x00,
+	'n', 0x00,
+	'c', 0x00,
+	'h', 0x00,
+	'B', 0x00,
+	'o', 0x00,
+	'a', 0x00,
+	'r', 0x00,
+	'd', 0x00,
 #else
 	14,						// bLength
 	USB_DESCRIPTOR_TYPE_STRING,		// bDescriptorType

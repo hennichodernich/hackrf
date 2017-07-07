@@ -31,8 +31,8 @@ SET(TOOLS
 	hackrf_cpldjtag
 	hackrf_info
 	hackrf_debug
-	hackrf_sweep
-	hackrf_operacake
+#	hackrf_sweep
+#	hackrf_operacake
 )
 
 if(MSVC)

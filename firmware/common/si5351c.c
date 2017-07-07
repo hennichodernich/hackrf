@@ -20,6 +20,7 @@
  * Boston, MA 02110-1301, USA.
  */
 
+#ifndef HNCH
 #include "si5351c.h"
 
 enum pll_sources active_clock_source;
@@ -244,3 +245,5 @@ void si5351c_activate_best_clock_source(si5351c_driver_t* const drv)
 		}
 	}
 }
+
+#endif

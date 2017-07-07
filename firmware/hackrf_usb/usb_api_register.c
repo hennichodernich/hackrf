@@ -107,7 +107,8 @@ usb_request_status_t usb_vendor_request_read_si5351c(
 	}
 }
 
-#ifndef RAD1O
+#if (defined RAD1O) || (defined HNCH)
+#else
 usb_request_status_t usb_vendor_request_write_rffc5071(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
-
+#ifndef HNCH
 #include "tuning.h"
 
 #include "hackrf-ui.h"
@@ -150,3 +150,5 @@ bool set_freq_explicit(const uint64_t if_freq_hz, const uint64_t lo_freq_hz,
 	}
 	return true;
 }
+
+#endif

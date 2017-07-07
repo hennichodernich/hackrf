@@ -141,6 +141,7 @@ static const uint16_t hackrf_usb_vid = 0x1d50;
 static const uint16_t hackrf_jawbreaker_usb_pid = 0x604b;
 static const uint16_t hackrf_one_usb_pid = 0x6089;
 static const uint16_t rad1o_usb_pid = 0xcc15;
+static const uint16_t hnch_usb_pid = 0x0815;
 
 static libusb_context* g_libusb_context = NULL;
 int last_libusb_error = LIBUSB_SUCCESS;
@@ -409,6 +410,7 @@ hackrf_device_list_t* ADDCALL hackrf_device_list()
 		if( device_descriptor.idVendor == hackrf_usb_vid ) {
 			if((device_descriptor.idProduct == hackrf_one_usb_pid) ||
 			   (device_descriptor.idProduct == hackrf_jawbreaker_usb_pid) ||
+			   (device_descriptor.idProduct == hnch_usb_pid) ||
 			   (device_descriptor.idProduct == rad1o_usb_pid)) {
 				idx = list->devicecount++;
 				list->usb_board_ids[idx] = device_descriptor.idProduct;
@@ -587,6 +589,11 @@ int ADDCALL hackrf_open(hackrf_device** device)
 	if( usb_device == NULL )
 	{
 		usb_device = libusb_open_device_with_vid_pid(g_libusb_context, hackrf_usb_vid, rad1o_usb_pid);
+	}
+
+	if( usb_device == NULL )
+	{
+		usb_device = libusb_open_device_with_vid_pid(g_libusb_context, hackrf_usb_vid, hnch_usb_pid);
 	}
 	
 	if( usb_device == NULL )
@@ -1698,6 +1705,9 @@ const char* ADDCALL hackrf_board_id_name(enum hackrf_board_id board_id)
 	case BOARD_ID_RAD1O:
 		return "rad1o";
 
+	case BOARD_ID_HNCH:
+		return "hnchBoard";
+
 	case BOARD_ID_INVALID:
 		return "Invalid Board ID";
 
@@ -1718,6 +1728,9 @@ extern ADDAPI const char* ADDCALL hackrf_usb_board_id_name(enum hackrf_usb_board
 
 	case USB_BOARD_ID_RAD1O:
 		return "rad1o";
+
+	case USB_BOARD_ID_HNCH:
+		return "hnchBoard";
 
 	case USB_BOARD_ID_INVALID:
 		return "Invalid Board ID";

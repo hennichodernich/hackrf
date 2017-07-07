@@ -20,6 +20,8 @@
  * Boston, MA 02110-1301, USA.
  */
 
+#ifndef HNCH
+
 #include <libopencm3/lpc43xx/scu.h>
 #include "hackrf_core.h"
 
@@ -182,3 +184,5 @@ void rffc5071_spi_transfer_gather(spi_bus_t* const bus, const spi_transfer_t* co
 		rffc5071_spi_transfer(bus, transfer[0].data, transfer[0].count);
 	}
 }
+
+#endif
