@@ -82,14 +82,16 @@ static const usb_request_handler_fn vendor_request_handler[] = {
 #ifndef HNCH
 	usb_vendor_request_set_freq,
 	usb_vendor_request_set_amp_enable,
+#else
+	NULL,
+	NULL,
+#endif
 	usb_vendor_request_read_partid_serialno,
+#ifndef HNCH
 	usb_vendor_request_set_lna_gain,
 	usb_vendor_request_set_vga_gain,
 	usb_vendor_request_set_txvga_gain,
 #else
-	NULL,
-	NULL,
-	NULL,
 	NULL,
 	NULL,
 	NULL,
@@ -198,16 +200,13 @@ int main(void) {
 	delay(1000000);
 #endif
 	cpu_clock_init();
-	led_on(LED1);
 
 	//usb_set_descriptor_by_serial_number();
 	usb_descriptor_string_serial_number[0] = 2;
 	usb_descriptor_string_serial_number[1] = USB_DESCRIPTOR_TYPE_STRING;
-	led_on(LED2);
 
 	usb_set_configuration_changed_cb(usb_configuration_changed);
 	usb_peripheral_reset();
-	led_on(LED3);
 	
 	usb_device_init(0, &usb_device);
 	
@@ -224,6 +223,7 @@ int main(void) {
 	hackrf_ui_init();
 
 	usb_run(&usb_device);
+	led_on(LED1);
 
 #ifndef HNCH
 	rf_path_init(&rf_path);

@@ -210,7 +210,7 @@ max5864_driver_t max5864 = {
 
 const ssp_config_t ssp_config_w25q80bv = {
 	.data_bits = SSP_DATA_8BITS,
-	.serial_clock_rate = 2,
+	.serial_clock_rate = 8,
 	.clock_prescale_rate = 2,
 	.gpio_select = &gpio_w25q80bv_select,
 };

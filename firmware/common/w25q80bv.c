@@ -29,7 +29,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
-
+#include <hackrf_core.h>
 #include "w25q80bv.h"
 
 #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
@@ -66,6 +66,8 @@ void w25q80bv_setup(w25q80bv_driver_t* const drv)
 	} while(device_id != W25Q80BV_DEVICE_ID_RES &&
 		device_id != W25Q16DV_DEVICE_ID_RES &&
 		device_id != W25Q32DV_DEVICE_ID_RES);
+
+
 }
 
 uint8_t w25q80bv_get_status(w25q80bv_driver_t* const drv)
@@ -168,7 +170,8 @@ void w25q80bv_program(w25q80bv_driver_t* const drv, uint32_t addr, uint32_t len,
 	do {
 		device_id = w25q80bv_get_device_id(drv);
 	} while(device_id != W25Q80BV_DEVICE_ID_RES &&
-		device_id != W25Q16DV_DEVICE_ID_RES);
+		device_id != W25Q16DV_DEVICE_ID_RES &&
+		device_id != W25Q32DV_DEVICE_ID_RES);
 	
 	/* do nothing if we would overflow the flash */
 	if ((len > drv->num_bytes) || (addr > drv->num_bytes)
