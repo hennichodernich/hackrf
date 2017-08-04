@@ -54,16 +54,16 @@ static const usb_request_handler_fn vendor_request_handler[] = {
 #ifndef HNCH
 	usb_vendor_request_write_max2837,
 	usb_vendor_request_read_max2837,
-	usb_vendor_request_write_si5351x,
-	usb_vendor_request_read_si5351x,
-	usb_vendor_request_set_sample_rate_frac,
-	usb_vendor_request_set_baseband_filter_bandwidth,
 #else
 	NULL,
 	NULL,
-	NULL,
-	NULL,
-	NULL,
+#endif
+	usb_vendor_request_write_si5351x,
+	usb_vendor_request_read_si5351x,
+	usb_vendor_request_set_sample_rate_frac,
+#ifndef HNCH
+	usb_vendor_request_set_baseband_filter_bandwidth,
+#else
 	NULL,
 #endif
 #if (defined RAD1O || defined HNCH)
