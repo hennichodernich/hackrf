@@ -61,11 +61,7 @@ static const usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_write_si5351x,
 	usb_vendor_request_read_si5351x,
 	usb_vendor_request_set_sample_rate_frac,
-#ifndef HNCH
 	usb_vendor_request_set_baseband_filter_bandwidth,
-#else
-	NULL,
-#endif
 #if (defined RAD1O || defined HNCH)
 	NULL, // write_rffc5071 not used
 	NULL, // read_rffc5071 not used
@@ -79,11 +75,10 @@ static const usb_request_handler_fn vendor_request_handler[] = {
 	NULL, // used to be write_cpld
 	usb_vendor_request_read_board_id,
 	usb_vendor_request_read_version_string,
-#ifndef HNCH
 	usb_vendor_request_set_freq,
+#ifndef HNCH
 	usb_vendor_request_set_amp_enable,
 #else
-	NULL,
 	NULL,
 #endif
 	usb_vendor_request_read_partid_serialno,
@@ -113,13 +108,11 @@ static const usb_request_handler_fn vendor_request_handler[] = {
 #endif
 	usb_vendor_request_operacake_get_boards,
 	usb_vendor_request_operacake_set_ports,
-#ifndef HNCH
 	usb_vendor_request_set_hw_sync_mode,
 	usb_vendor_request_reset,
+#ifndef HNCH
 	usb_vendor_request_operacake_set_ranges
 #else
-	NULL,
-	NULL,
 	NULL
 #endif
 };
