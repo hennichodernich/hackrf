@@ -32,7 +32,7 @@ extern "C"
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "si5351c.h"
+#include "si5351x.h"
 #include "spi_ssp.h"
 
 #include "max2837.h"
@@ -255,7 +255,7 @@ typedef enum {
 void delay(uint32_t duration);
 
 /* TODO: Hide these configurations */
-extern si5351c_driver_t clock_gen;
+extern si5351x_driver_t clock_gen;
 extern const ssp_config_t ssp_config_w25q80bv;
 extern const ssp_config_t ssp_config_max2837;
 extern const ssp_config_t ssp_config_max5864;
@@ -284,7 +284,9 @@ void disable_1v8_power(void);
 
 bool sample_rate_frac_set(uint32_t rate_num, uint32_t rate_denom);
 bool sample_rate_set(const uint32_t sampling_rate_hz);
+#ifndef HNCH
 bool baseband_filter_bandwidth_set(const uint32_t bandwidth_hz);
+#endif
 
 #if (defined HACKRF_ONE || defined RAD1O)
 void enable_rf_power(void);

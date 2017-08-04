@@ -70,14 +70,14 @@ usb_request_status_t usb_vendor_request_read_max2837(
 	}
 }
 
-usb_request_status_t usb_vendor_request_write_si5351c(
+usb_request_status_t usb_vendor_request_write_si5351x(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage
 ) {
 	if( stage == USB_TRANSFER_STAGE_SETUP ) {
 		if( endpoint->setup.index < 256 ) {
 			if( endpoint->setup.value < 256 ) {
-				si5351c_write_single(&clock_gen, endpoint->setup.index, endpoint->setup.value);
+				si5351x_write_single(&clock_gen, endpoint->setup.index, endpoint->setup.value);
 				usb_transfer_schedule_ack(endpoint->in);
 				return USB_REQUEST_STATUS_OK;
 			}
@@ -88,13 +88,13 @@ usb_request_status_t usb_vendor_request_write_si5351c(
 	}
 }
 
-usb_request_status_t usb_vendor_request_read_si5351c(
+usb_request_status_t usb_vendor_request_read_si5351x(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage
 ) {
 	if( stage == USB_TRANSFER_STAGE_SETUP ) {
 		if( endpoint->setup.index < 256 ) {
-			const uint8_t value = si5351c_read_single(&clock_gen, endpoint->setup.index);
+			const uint8_t value = si5351x_read_single(&clock_gen, endpoint->setup.index);
 			endpoint->buffer[0] = value;
 			usb_transfer_schedule_block(endpoint->in, &endpoint->buffer, 1,
 						    NULL, NULL);

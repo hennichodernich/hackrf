@@ -23,7 +23,7 @@
 
 #include "hackrf_core.h"
 #include "hackrf-ui.h"
-#include "si5351c.h"
+#include "si5351x.h"
 #include "spi_ssp.h"
 #include "max2837.h"
 #include "max2837_target.h"
@@ -144,15 +144,15 @@ i2c_bus_t i2c1 = {
 	.transfer = i2c_lpc_transfer,
 };
 
-const i2c_lpc_config_t i2c_config_si5351c_slow_clock = {
+const i2c_lpc_config_t i2c_config_si5351x_slow_clock = {
 	.duty_cycle_count = 15,
 };
 
-const i2c_lpc_config_t i2c_config_si5351c_fast_clock = {
+const i2c_lpc_config_t i2c_config_si5351x_fast_clock = {
 	.duty_cycle_count = 255,
 };
 
-si5351c_driver_t clock_gen = {
+si5351x_driver_t clock_gen = {
 	.bus = &i2c0,
 	.i2c_address = 0x60,
 };
@@ -323,7 +323,6 @@ gcd(uint32_t u, uint32_t v)
 
 	return u << s;
 }
-#ifndef HNCH
 bool sample_rate_frac_set(uint32_t rate_num, uint32_t rate_denom)
 {
 	const uint64_t VCO_FREQ = 800 * 1000 * 1000; /* 800 MHz */
@@ -365,9 +364,9 @@ bool sample_rate_frac_set(uint32_t rate_num, uint32_t rate_denom)
 
 	/* Can we enable integer mode ? */
 	if (a & 0x1 || b)
-		si5351c_set_int_mode(&clock_gen, 0, 0);
+		si5351x_set_int_mode(&clock_gen, 0, 0);
 	else
-		si5351c_set_int_mode(&clock_gen, 0, 1);
+		si5351x_set_int_mode(&clock_gen, 0, 1);
 
 	/* Final MS values */
 	MSx_P1 = 128*a + (128 * b/c) - 512;
@@ -375,13 +374,13 @@ bool sample_rate_frac_set(uint32_t rate_num, uint32_t rate_denom)
 	MSx_P3 = c;
 
 	/* MS0/CLK0 is the source for the MAX5864/CPLD (CODEC_CLK). */
-	si5351c_configure_multisynth(&clock_gen, 0, MSx_P1, MSx_P2, MSx_P3, 1);
+	si5351x_configure_multisynth(&clock_gen, 0, MSx_P1, MSx_P2, MSx_P3, 1);
 
 	/* MS0/CLK1 is the source for the CPLD (CODEC_X2_CLK). */
-	si5351c_configure_multisynth(&clock_gen, 1, 0, 0, 0, 0);//p1 doesn't matter
+	si5351x_configure_multisynth(&clock_gen, 1, 0, 0, 0, 0);//p1 doesn't matter
 
 	/* MS0/CLK2 is the source for SGPIO (CODEC_X2_CLK) */
-	si5351c_configure_multisynth(&clock_gen, 2, 0, 0, 0, 0);//p1 doesn't matter
+	si5351x_configure_multisynth(&clock_gen, 2, 0, 0, 0, 0);//p1 doesn't matter
 
 	return true;
 }
@@ -438,17 +437,18 @@ bool sample_rate_set(const uint32_t sample_rate_hz) {
 	}
 	
 	/* MS0/CLK0 is the source for the MAX5864/CPLD (CODEC_CLK). */
-	si5351c_configure_multisynth(&clock_gen, 0, p1, p2, p3, 1);
+	si5351x_configure_multisynth(&clock_gen, 0, p1, p2, p3, 1);
 
 	/* MS0/CLK1 is the source for the CPLD (CODEC_X2_CLK). */
-	si5351c_configure_multisynth(&clock_gen, 1, p1, 0, 1, 0);//p1 doesn't matter
+	si5351x_configure_multisynth(&clock_gen, 1, p1, 0, 1, 0);//p1 doesn't matter
 
 	/* MS0/CLK2 is the source for SGPIO (CODEC_X2_CLK) */
-	si5351c_configure_multisynth(&clock_gen, 2, p1, 0, 1, 0);//p1 doesn't matter
+	si5351x_configure_multisynth(&clock_gen, 2, p1, 0, 1, 0);//p1 doesn't matter
 
 	return true;
 }
 
+#ifndef HNCH
 bool baseband_filter_bandwidth_set(const uint32_t bandwidth_hz) {
 	uint32_t bandwidth_hz_real = max2837_set_lpf_bandwidth(&max2837, bandwidth_hz);
 
@@ -468,17 +468,18 @@ void cpu_clock_init(void)
 	/* use IRC as clock source for APB3 */
 	CGU_BASE_APB3_CLK = CGU_BASE_APB3_CLK_CLK_SEL(CGU_SRC_IRC);
 
+	i2c_bus_start(clock_gen.bus, &i2c_config_si5351x_slow_clock);
+
+	si5351x_disable_all_outputs(&clock_gen);
+	si5351x_disable_oeb_pin_control(&clock_gen);
+	si5351x_power_down_all_clocks(&clock_gen);
+	si5351x_set_crystal_configuration(&clock_gen);
+	si5351x_enable_xo_and_ms_fanout(&clock_gen);
+	si5351x_configure_pll_sources(&clock_gen);
+	si5351x_configure_pll_multisynth(&clock_gen);
+
+
 #ifndef HNCH
-	i2c_bus_start(clock_gen.bus, &i2c_config_si5351c_slow_clock);
-
-	si5351c_disable_all_outputs(&clock_gen);
-	si5351c_disable_oeb_pin_control(&clock_gen);
-	si5351c_power_down_all_clocks(&clock_gen);
-	si5351c_set_crystal_configuration(&clock_gen);
-	si5351c_enable_xo_and_ms_fanout(&clock_gen);
-	si5351c_configure_pll_sources(&clock_gen);
-	si5351c_configure_pll_multisynth(&clock_gen);
-
 	/*
 	 * Clocks:
 	 *   CLK0 -> MAX5864/CPLD
@@ -492,29 +493,29 @@ void cpu_clock_init(void)
 	 */
 
 	/* MS4/CLK4 is the source for the RFFC5071 mixer (MAX2837 on rad1o). */
-	si5351c_configure_multisynth(&clock_gen, 4, 20*128-512, 0, 1, 0); /* 800/20 = 40MHz */
+	si5351x_configure_multisynth(&clock_gen, 4, 20*128-512, 0, 1, 0); /* 800/20 = 40MHz */
  	/* MS5/CLK5 is the source for the MAX2837 clock input (MAX2871 on rad1o). */
-	si5351c_configure_multisynth(&clock_gen, 5, 20*128-512, 0, 1, 0); /* 800/20 = 40MHz */
+	si5351x_configure_multisynth(&clock_gen, 5, 20*128-512, 0, 1, 0); /* 800/20 = 40MHz */
 
 	/* MS6/CLK6 is unused. */
 	/* MS7/CLK7 is unused. */
 
+#endif
 
 	/* Set to 10 MHz, the common rate between Jawbreaker and HackRF One. */
 	sample_rate_set(10000000);
 
-	si5351c_set_clock_source(&clock_gen, PLL_SOURCE_XTAL);
+	si5351x_set_clock_source(&clock_gen, PLL_SOURCE_XTAL);
 	// soft reset
 	// uint8_t resetdata[] = { 177, 0xac };
-	// si5351c_write(&clock_gen, resetdata, sizeof(resetdata));
-	si5351c_reset_pll(&clock_gen);
-	si5351c_enable_clock_outputs(&clock_gen);
+	// si5351x_write(&clock_gen, resetdata, sizeof(resetdata));
+	si5351x_reset_pll(&clock_gen);
+	si5351x_enable_clock_outputs(&clock_gen);
 
 	//FIXME disable I2C
 	/* Kick I2C0 down to 400kHz when we switch over to APB1 clock = 204MHz */
-	i2c_bus_start(clock_gen.bus, &i2c_config_si5351c_fast_clock);
+	i2c_bus_start(clock_gen.bus, &i2c_config_si5351x_fast_clock);
 
-#endif
 	/*
 	 * 12MHz clock is entering LPC XTAL1/OSC input now.
 	 * On HackRF One and Jawbreaker, there is a 12 MHz crystal at the LPC.

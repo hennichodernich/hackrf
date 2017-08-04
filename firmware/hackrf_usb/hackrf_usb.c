@@ -54,8 +54,8 @@ static const usb_request_handler_fn vendor_request_handler[] = {
 #ifndef HNCH
 	usb_vendor_request_write_max2837,
 	usb_vendor_request_read_max2837,
-	usb_vendor_request_write_si5351c,
-	usb_vendor_request_read_si5351c,
+	usb_vendor_request_write_si5351x,
+	usb_vendor_request_read_si5351x,
 	usb_vendor_request_set_sample_rate_frac,
 	usb_vendor_request_set_baseband_filter_bandwidth,
 #else
@@ -106,17 +106,18 @@ static const usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_set_freq_explicit,
 	usb_vendor_request_read_wcid,  // USB_WCID_VENDOR_REQ
 	usb_vendor_request_init_sweep,
-	usb_vendor_request_operacake_get_boards,
-	usb_vendor_request_operacake_set_ports,
-	usb_vendor_request_set_hw_sync_mode,
-	usb_vendor_request_reset,
-	usb_vendor_request_operacake_set_ranges
 #else
 	NULL,
 	NULL,
 	NULL,
-	NULL,
-	NULL,
+#endif
+	usb_vendor_request_operacake_get_boards,
+	usb_vendor_request_operacake_set_ports,
+#ifndef HNCH
+	usb_vendor_request_set_hw_sync_mode,
+	usb_vendor_request_reset,
+	usb_vendor_request_operacake_set_ranges
+#else
 	NULL,
 	NULL,
 	NULL
