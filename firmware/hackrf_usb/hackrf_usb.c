@@ -97,12 +97,11 @@ static const usb_request_handler_fn vendor_request_handler[] = {
 #else
 	NULL,
 #endif
-#ifndef HNCH
 	usb_vendor_request_set_freq_explicit,
+#ifndef HNCH
 	usb_vendor_request_read_wcid,  // USB_WCID_VENDOR_REQ
 	usb_vendor_request_init_sweep,
 #else
-	NULL,
 	NULL,
 	NULL,
 #endif

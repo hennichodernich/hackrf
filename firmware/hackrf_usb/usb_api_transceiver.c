@@ -237,11 +237,13 @@ usb_request_status_t usb_vendor_request_set_antenna_enable(
 		return USB_REQUEST_STATUS_OK;
 	}
 }
+#endif
 
 usb_request_status_t usb_vendor_request_set_freq_explicit(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage)
 {
+#ifndef HNCH
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
 		usb_transfer_schedule_block(endpoint->out, &explicit_params,
 				sizeof(struct set_freq_explicit_params), NULL, NULL);
@@ -256,8 +258,19 @@ usb_request_status_t usb_vendor_request_set_freq_explicit(
 	} else {
 		return USB_REQUEST_STATUS_OK;
 	}
-}
+#else
+	usb_transfer_schedule_block(endpoint->out, &explicit_params,
+				sizeof(struct set_freq_explicit_params), NULL, NULL);
+		return USB_REQUEST_STATUS_OK;
+	} else if (stage == USB_TRANSFER_STAGE_DATA) {
+		usb_transfer_schedule_ack(endpoint->in);
+		return USB_REQUEST_STATUS_OK;
+	} else {
+		return USB_REQUEST_STATUS_OK;
+	}
 #endif
+}
+
 static volatile transceiver_mode_t _transceiver_mode = TRANSCEIVER_MODE_OFF;
 static volatile hw_sync_mode_t _hw_sync_mode = HW_SYNC_MODE_OFF;
 
@@ -268,7 +281,7 @@ void set_hw_sync_mode(const hw_sync_mode_t new_hw_sync_mode) {
 transceiver_mode_t transceiver_mode(void) {
 	return _transceiver_mode;
 }
-#ifndef HNCH
+
 void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode) {
 	baseband_streaming_disable(&sgpio_config);
 	
@@ -281,18 +294,24 @@ void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode) {
 		led_off(LED3);
 		led_on(LED2);
 		usb_endpoint_init(&usb_endpoint_bulk_in);
+#ifndef HNCH
 		rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_RX);
+#endif
 		vector_table.irq[NVIC_SGPIO_IRQ] = sgpio_isr_rx;
 	} else if (_transceiver_mode == TRANSCEIVER_MODE_TX) {
 		led_off(LED2);
 		led_on(LED3);
 		usb_endpoint_init(&usb_endpoint_bulk_out);
+#ifndef HNCH
 		rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_TX);
+#endif
 		vector_table.irq[NVIC_SGPIO_IRQ] = sgpio_isr_tx;
 	} else {
 		led_off(LED2);
 		led_off(LED3);
+#ifndef HNCH
 		rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_OFF);
+#endif
 		vector_table.irq[NVIC_SGPIO_IRQ] = sgpio_isr_rx;
 	}
 
@@ -320,66 +339,18 @@ usb_request_status_t usb_vendor_request_set_transceiver_mode(
 			return USB_REQUEST_STATUS_OK;
 		case TRANSCEIVER_MODE_CPLD_UPDATE:
 			usb_endpoint_init(&usb_endpoint_bulk_out);
+#ifndef HNCH
 			start_cpld_update = true;
-			usb_transfer_schedule_ack(endpoint->in);
-			return USB_REQUEST_STATUS_OK;
-		default:
-			return USB_REQUEST_STATUS_STALL;
-		}
-	} else {
-		return USB_REQUEST_STATUS_OK;
-	}
-}
-#else
-void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode) {
-	baseband_streaming_disable(&sgpio_config);
-	
-	usb_endpoint_disable(&usb_endpoint_bulk_in);
-	usb_endpoint_disable(&usb_endpoint_bulk_out);
-	
-	_transceiver_mode = new_transceiver_mode;
-	
-	if( _transceiver_mode == TRANSCEIVER_MODE_RX ) {
-		usb_endpoint_init(&usb_endpoint_bulk_in);
-		vector_table.irq[NVIC_SGPIO_IRQ] = sgpio_isr_rx;
-	} else if (_transceiver_mode == TRANSCEIVER_MODE_TX) {
-		usb_endpoint_init(&usb_endpoint_bulk_out);
-		vector_table.irq[NVIC_SGPIO_IRQ] = sgpio_isr_tx;
-	} else {
-		vector_table.irq[NVIC_SGPIO_IRQ] = sgpio_isr_rx;
-	}
-
-	if( _transceiver_mode != TRANSCEIVER_MODE_OFF ) {
-        	hw_sync_enable(_hw_sync_mode);
-
-		baseband_streaming_enable(&sgpio_config);
-	}
-}
-
-usb_request_status_t usb_vendor_request_set_transceiver_mode(
-	usb_endpoint_t* const endpoint,
-	const usb_transfer_stage_t stage)
-{
-	if( stage == USB_TRANSFER_STAGE_SETUP ) {
-		switch( endpoint->setup.value ) {
-		case TRANSCEIVER_MODE_OFF:
-		case TRANSCEIVER_MODE_RX:
-		case TRANSCEIVER_MODE_TX:
-			set_transceiver_mode(endpoint->setup.value);
-			usb_transfer_schedule_ack(endpoint->in);
-			return USB_REQUEST_STATUS_OK;
-		case TRANSCEIVER_MODE_CPLD_UPDATE:
-			usb_endpoint_init(&usb_endpoint_bulk_out);
-			usb_transfer_schedule_ack(endpoint->in);
-			return USB_REQUEST_STATUS_OK;
-		default:
-			return USB_REQUEST_STATUS_STALL;
-		}
-	} else {
-		return USB_REQUEST_STATUS_OK;
-	}
-}
 #endif
+			usb_transfer_schedule_ack(endpoint->in);
+			return USB_REQUEST_STATUS_OK;
+		default:
+			return USB_REQUEST_STATUS_STALL;
+		}
+	} else {
+		return USB_REQUEST_STATUS_OK;
+	}
+}
 
 usb_request_status_t usb_vendor_request_set_hw_sync_mode(
 	usb_endpoint_t* const endpoint,

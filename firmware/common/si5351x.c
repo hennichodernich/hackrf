@@ -266,6 +266,8 @@ void si5351x_activate_best_clock_source(si5351x_driver_t* const drv)
 			si5351x_set_clock_source(drv, PLL_SOURCE_CLKIN);
 		}
 	}
+#else
+	si5351x_set_clock_source(drv, PLL_SOURCE_XTAL);
 #endif
 }
 

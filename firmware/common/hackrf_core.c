@@ -658,7 +658,7 @@ void cpu_clock_init(void)
 	// CCU2_CLK_SDIO_CFG = 0;
 #endif
 
-#ifdef RAD1O
+#if (defined RAD1O || defined HNCH)
 	/* Disable unused clock outputs. They generate noise. */
 	scu_pinmux(CLK0, SCU_CLK_IN | SCU_CONF_FUNCTION7);
 	scu_pinmux(CLK2, SCU_CLK_IN | SCU_CONF_FUNCTION7);
@@ -824,6 +824,13 @@ void pin_setup(void) {
 
 	/* Safe state: start with VAA turned off: */
 	disable_rf_power();
+
+	scu_pinmux(SCU_PINMUX_GPIO3_10, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
+	scu_pinmux(SCU_PINMUX_GPIO3_11, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
+
+#endif
+
+#ifdef HNCH
 
 	scu_pinmux(SCU_PINMUX_GPIO3_10, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
 	scu_pinmux(SCU_PINMUX_GPIO3_11, SCU_GPIO_PDN | SCU_CONF_FUNCTION0);
