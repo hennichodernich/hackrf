@@ -20,7 +20,6 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef HNCH
 #include "rf_path.h"
 
 #include <libopencm3/lpc43xx/scu.h>
@@ -76,6 +75,8 @@
  * bypass and mixer bypass.
  */
 #define SWITCHCTRL_SAFE (SWITCHCTRL_NO_TX_AMP_PWR | SWITCHCTRL_AMP_BYPASS | SWITCHCTRL_TX | SWITCHCTRL_MIX_BYPASS | SWITCHCTRL_HP | SWITCHCTRL_NO_RX_AMP_PWR)
+#elif (defined HNCH)
+#define SWITCHCTRL_SAFE 0
 #endif
 
 uint8_t switchctrl = SWITCHCTRL_SAFE;
@@ -319,6 +320,7 @@ void rf_path_pin_setup(rf_path_t* const rf_path) {
 }
 
 void rf_path_init(rf_path_t* const rf_path) {
+#ifndef HNCH
 	ssp1_set_mode_max5864();
 	max5864_setup(&max5864);
 	max5864_shutdown(&max5864);
@@ -328,10 +330,12 @@ void rf_path_init(rf_path_t* const rf_path) {
 	max2837_start(&max2837);
 	
 	mixer_setup(&mixer);
+#endif
 	switchctrl_set(rf_path, switchctrl);
 }
 
 void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t direction) {
+#ifndef HNCH
 	/* Turn off TX and RX amplifiers, then enable based on direction and bypass state. */
 	rf_path->switchctrl |= SWITCHCTRL_NO_TX_AMP_PWR | SWITCHCTRL_NO_RX_AMP_PWR;
 	switch(direction) {
@@ -389,13 +393,29 @@ void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t d
 		sgpio_configure(&sgpio_config, SGPIO_DIRECTION_RX);
 		break;
 	}
+#else
+	switch(direction) {
+		case RF_PATH_DIRECTION_TX:
+			sgpio_configure(&sgpio_config, SGPIO_DIRECTION_TX);
+			break;
 
+		case RF_PATH_DIRECTION_RX:
+			sgpio_configure(&sgpio_config, SGPIO_DIRECTION_RX);
+			break;
+
+		case RF_PATH_DIRECTION_OFF:
+		default:
+			sgpio_configure(&sgpio_config, SGPIO_DIRECTION_RX);
+			break;
+		}
+#endif
 	switchctrl_set(rf_path, rf_path->switchctrl);
 
 	hackrf_ui_setDirection(direction);
 }
 
 void rf_path_set_filter(rf_path_t* const rf_path, const rf_path_filter_t filter) {
+#ifndef HNCH
 	switch(filter) {
 	default:
 	case RF_PATH_FILTER_BYPASS:
@@ -414,11 +434,12 @@ void rf_path_set_filter(rf_path_t* const rf_path, const rf_path_filter_t filter)
 		mixer_enable(&mixer);
 		break;
 	}
-
+#endif
 	switchctrl_set(rf_path, rf_path->switchctrl);
 }
 
 void rf_path_set_lna(rf_path_t* const rf_path, const uint_fast8_t enable) {
+#ifndef HNCH
 	if( enable ) {
 		if( rf_path->switchctrl & SWITCHCTRL_TX ) {
 			/* AMP_BYPASS=0, NO_RX_AMP_PWR=1, NO_TX_AMP_PWR=0 */
@@ -433,7 +454,7 @@ void rf_path_set_lna(rf_path_t* const rf_path, const uint_fast8_t enable) {
 		/* AMP_BYPASS=1, NO_RX_AMP_PWR=1, NO_TX_AMP_PWR=1 */
 		rf_path->switchctrl |= SWITCHCTRL_AMP_BYPASS | SWITCHCTRL_NO_TX_AMP_PWR | SWITCHCTRL_NO_RX_AMP_PWR;
 	}
-	
+#endif
 	switchctrl_set(rf_path, rf_path->switchctrl);
 
 	hackrf_ui_setLNAPower(enable);
@@ -441,13 +462,13 @@ void rf_path_set_lna(rf_path_t* const rf_path, const uint_fast8_t enable) {
 
 /* antenna port power control */
 void rf_path_set_antenna(rf_path_t* const rf_path, const uint_fast8_t enable) {
+#ifndef HNCH
 	if (enable) {
 		rf_path->switchctrl |= SWITCHCTRL_ANT_PWR;
 	} else {
 		rf_path->switchctrl &= ~(SWITCHCTRL_ANT_PWR);
 	}
-
+#endif
 	switchctrl_set(rf_path, rf_path->switchctrl);
 }
 
-#endif

@@ -33,6 +33,10 @@ typedef rffc5071_driver_t mixer_driver_t;
 typedef max2871_driver_t mixer_driver_t;
 #endif
 
+#ifdef HNCH
+typedef int mixer_driver_t;
+#endif
+
 #include <stdint.h>
 extern void mixer_bus_setup(mixer_driver_t* const mixer);
 extern void mixer_setup(mixer_driver_t* const mixer);

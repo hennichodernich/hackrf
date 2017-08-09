@@ -1,5 +1,3 @@
-#ifndef HNCH
-
 #include "mixer.h"
 #include "rffc5071.h"
 #include "rffc5071_spi.h"
@@ -145,4 +143,3 @@ void mixer_set_gpo(mixer_driver_t* const mixer, uint8_t gpo)
 #endif
 }
 
-#endif
