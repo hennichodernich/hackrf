@@ -149,18 +149,22 @@ usb_request_status_t usb_vendor_request_set_sample_rate_frac(
 		return USB_REQUEST_STATUS_OK;
 	}
 }
-#ifndef HNCH
+
 usb_request_status_t usb_vendor_request_set_amp_enable(
 	usb_endpoint_t* const endpoint, const usb_transfer_stage_t stage)
 {
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
 		switch (endpoint->setup.value) {
 		case 0:
+#ifndef HNCH
 			rf_path_set_lna(&rf_path, 0);
+#endif
 			usb_transfer_schedule_ack(endpoint->in);
 			return USB_REQUEST_STATUS_OK;
 		case 1:
+#ifndef HNCH
 			rf_path_set_lna(&rf_path, 1);
+#endif
 			usb_transfer_schedule_ack(endpoint->in);
 			return USB_REQUEST_STATUS_OK;
 		default:
@@ -176,9 +180,13 @@ usb_request_status_t usb_vendor_request_set_lna_gain(
 	const usb_transfer_stage_t stage)
 {
 	if( stage == USB_TRANSFER_STAGE_SETUP ) {
+#ifndef HNCH
 			const uint8_t value = max2837_set_lna_gain(&max2837, endpoint->setup.index);
 			endpoint->buffer[0] = value;
 			if(value) hackrf_ui_setBBLNAGain(endpoint->setup.index);
+#else
+			endpoint->buffer[0] = 1;
+#endif
 			usb_transfer_schedule_block(endpoint->in, &endpoint->buffer, 1,
 						    NULL, NULL);
 			usb_transfer_schedule_ack(endpoint->out);
@@ -191,9 +199,13 @@ usb_request_status_t usb_vendor_request_set_vga_gain(
 	usb_endpoint_t* const endpoint,	const usb_transfer_stage_t stage)
 {
 	if( stage == USB_TRANSFER_STAGE_SETUP ) {
+#ifndef HNCH
 			const uint8_t value = max2837_set_vga_gain(&max2837, endpoint->setup.index);
 			endpoint->buffer[0] = value;
 			if(value) hackrf_ui_setBBVGAGain(endpoint->setup.index);
+#else
+			endpoint->buffer[0] = 1;
+#endif
 			usb_transfer_schedule_block(endpoint->in, &endpoint->buffer, 1,
 						    NULL, NULL);
 			usb_transfer_schedule_ack(endpoint->out);
@@ -206,9 +218,13 @@ usb_request_status_t usb_vendor_request_set_txvga_gain(
 	usb_endpoint_t* const endpoint,	const usb_transfer_stage_t stage)
 {
 	if( stage == USB_TRANSFER_STAGE_SETUP ) {
+#ifndef HNCH
 			const uint8_t value = max2837_set_txvga_gain(&max2837, endpoint->setup.index);
 			endpoint->buffer[0] = value;
 			if(value) hackrf_ui_setBBTXVGAGain(endpoint->setup.index);
+#else
+			endpoint->buffer[0] = 1;
+#endif
 			usb_transfer_schedule_block(endpoint->in, &endpoint->buffer, 1,
 						    NULL, NULL);
 			usb_transfer_schedule_ack(endpoint->out);
@@ -223,11 +239,15 @@ usb_request_status_t usb_vendor_request_set_antenna_enable(
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
 		switch (endpoint->setup.value) {
 		case 0:
+#ifndef HNCH
 			rf_path_set_antenna(&rf_path, 0);
+#endif
 			usb_transfer_schedule_ack(endpoint->in);
 			return USB_REQUEST_STATUS_OK;
 		case 1:
+#ifndef HNCH
 			rf_path_set_antenna(&rf_path, 1);
+#endif
 			usb_transfer_schedule_ack(endpoint->in);
 			return USB_REQUEST_STATUS_OK;
 		default:
@@ -237,7 +257,6 @@ usb_request_status_t usb_vendor_request_set_antenna_enable(
 		return USB_REQUEST_STATUS_OK;
 	}
 }
-#endif
 
 usb_request_status_t usb_vendor_request_set_freq_explicit(
 	usb_endpoint_t* const endpoint,
@@ -259,7 +278,8 @@ usb_request_status_t usb_vendor_request_set_freq_explicit(
 		return USB_REQUEST_STATUS_OK;
 	}
 #else
-	usb_transfer_schedule_block(endpoint->out, &explicit_params,
+	if (stage == USB_TRANSFER_STAGE_SETUP) {
+		usb_transfer_schedule_block(endpoint->out, &explicit_params,
 				sizeof(struct set_freq_explicit_params), NULL, NULL);
 		return USB_REQUEST_STATUS_OK;
 	} else if (stage == USB_TRANSFER_STAGE_DATA) {

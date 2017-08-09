@@ -76,33 +76,18 @@ static const usb_request_handler_fn vendor_request_handler[] = {
 	usb_vendor_request_read_board_id,
 	usb_vendor_request_read_version_string,
 	usb_vendor_request_set_freq,
-#ifndef HNCH
 	usb_vendor_request_set_amp_enable,
-#else
-	NULL,
-#endif
 	usb_vendor_request_read_partid_serialno,
-#ifndef HNCH
 	usb_vendor_request_set_lna_gain,
 	usb_vendor_request_set_vga_gain,
 	usb_vendor_request_set_txvga_gain,
-#else
-	NULL,
-	NULL,
-	NULL,
-#endif
 	NULL, // was set_if_freq
-#ifdef HACKRF_ONE
 	usb_vendor_request_set_antenna_enable,
-#else
-	NULL,
-#endif
 	usb_vendor_request_set_freq_explicit,
-#ifndef HNCH
 	usb_vendor_request_read_wcid,  // USB_WCID_VENDOR_REQ
+#ifndef HNCH
 	usb_vendor_request_init_sweep,
 #else
-	NULL,
 	NULL,
 #endif
 	usb_vendor_request_operacake_get_boards,
@@ -150,11 +135,9 @@ void usb_configuration_changed(
 	if( device->configuration->number == 1 ) {
 		// transceiver configuration
 		cpu_clock_pll1_max_speed();
-		led_on(LED1);
 	} else {
 		/* Configuration number equal 0 means usb bus reset. */
 		cpu_clock_pll1_low_speed();
-		led_off(LED1);
 	}
 }
 
@@ -216,7 +199,6 @@ int main(void) {
 	hackrf_ui_init();
 
 	usb_run(&usb_device);
-	led_on(LED1);
 
 #ifndef HNCH
 	rf_path_init(&rf_path);

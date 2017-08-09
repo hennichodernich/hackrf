@@ -56,6 +56,4 @@ void w25q80bv_target_init(w25q80bv_driver_t* const drv) {
 	/* Set GPIO pins as outputs. */
 	gpio_output(drv->gpio_hold);
 	gpio_output(drv->gpio_wp);
-
-	led_on(LED2);
 }
