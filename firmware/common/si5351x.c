@@ -69,8 +69,8 @@ void si5351x_power_down_all_clocks(si5351x_driver_t* const drv)
 #ifdef HNCH
 	uint8_t data[] = { 16
 	, SI5351X_CLK_POWERDOWN
-	, SI5351X_CLK_POWERDOWN | SI5351X_CLK_INT_MODE 
-	, SI5351X_CLK_POWERDOWN | SI5351X_CLK_INT_MODE
+	, SI5351X_CLK_POWERDOWN 
+	, SI5351X_CLK_POWERDOWN
 	};
 #else
 	uint8_t data[] = { 16
