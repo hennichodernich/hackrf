@@ -177,9 +177,7 @@ int main(void) {
 #endif
 	cpu_clock_init();
 
-	//usb_set_descriptor_by_serial_number();
-	usb_descriptor_string_serial_number[0] = 2;
-	usb_descriptor_string_serial_number[1] = USB_DESCRIPTOR_TYPE_STRING;
+	usb_set_descriptor_by_serial_number();
 
 	usb_set_configuration_changed_cb(usb_configuration_changed);
 	usb_peripheral_reset();
