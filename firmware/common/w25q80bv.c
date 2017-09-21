@@ -65,7 +65,7 @@ void w25q80bv_setup(w25q80bv_driver_t* const drv)
 		device_id = w25q80bv_get_device_id(drv);
 	} while(device_id != W25Q80BV_DEVICE_ID_RES &&
 		device_id != W25Q16DV_DEVICE_ID_RES &&
-		device_id != W25Q32DV_DEVICE_ID_RES);
+		device_id != W25Q32BV_DEVICE_ID_RES);
 
 
 }
@@ -123,7 +123,7 @@ void w25q80bv_chip_erase(w25q80bv_driver_t* const drv)
 		device_id = w25q80bv_get_device_id(drv);
 	} while(device_id != W25Q80BV_DEVICE_ID_RES &&
 		device_id != W25Q16DV_DEVICE_ID_RES &&
-		device_id != W25Q32DV_DEVICE_ID_RES);
+		device_id != W25Q32BV_DEVICE_ID_RES);
 
 	w25q80bv_write_enable(drv);
 	w25q80bv_wait_while_busy(drv);
@@ -171,7 +171,7 @@ void w25q80bv_program(w25q80bv_driver_t* const drv, uint32_t addr, uint32_t len,
 		device_id = w25q80bv_get_device_id(drv);
 	} while(device_id != W25Q80BV_DEVICE_ID_RES &&
 		device_id != W25Q16DV_DEVICE_ID_RES &&
-		device_id != W25Q32DV_DEVICE_ID_RES);
+		device_id != W25Q32BV_DEVICE_ID_RES);
 	
 	/* do nothing if we would overflow the flash */
 	if ((len > drv->num_bytes) || (addr > drv->num_bytes)
