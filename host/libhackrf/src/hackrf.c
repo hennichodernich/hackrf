@@ -481,6 +481,7 @@ libusb_device_handle* hackrf_open_usb(const char* const desired_serial_number)
 		if( device_descriptor.idVendor == hackrf_usb_vid ) {
 			if((device_descriptor.idProduct == hackrf_one_usb_pid) ||
 			   (device_descriptor.idProduct == hackrf_jawbreaker_usb_pid) ||
+			   (device_descriptor.idProduct == hnch_usb_pid) ||
 			   (device_descriptor.idProduct == rad1o_usb_pid)) {
 				
 				if( desired_serial_number != NULL ) {
