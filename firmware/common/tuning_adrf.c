@@ -28,8 +28,8 @@
 
 #include <sgpio.h>
 
-#define MIN_LO_FREQ_HZ ( 35000000)
-#define MAX_LO_FREQ_HZ (525000000ULL)
+#define MIN_LO_FREQ_MHZ ( 35)
+#define MAX_LO_FREQ_MHZ (525)
 
 uint64_t freq_cache = 0;
 
@@ -39,14 +39,15 @@ bool set_freq(const uint64_t freq)
 
 	const uint32_t freq_mhz = freq / 1000000;
 
-	if((freq_mhz >= MIN_LO_FREQ_HZ)&&(freq_mhz <= MAX_LO_FREQ_HZ))
+	if((freq_mhz >= MIN_LO_FREQ_MHZ)&&(freq_mhz <= MAX_LO_FREQ_MHZ))
 	{
 		adrf6806_set_frequency(&adrf6806, (uint32_t)freq);
 	}
-	else
+/*	else
 	{
 		success = false;
 	}
+*/
 	if( success ) {
 		freq_cache = freq;
 		hackrf_ui_setFrequency(freq);

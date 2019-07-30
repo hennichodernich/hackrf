@@ -285,24 +285,18 @@ void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode) {
 		led_off(LED3);
 		led_on(LED2);
 		usb_endpoint_init(&usb_endpoint_bulk_in);
-#ifndef HNCH
 		rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_RX);
-#endif
 		vector_table.irq[NVIC_SGPIO_IRQ] = sgpio_isr_rx;
 	} else if (_transceiver_mode == TRANSCEIVER_MODE_TX) {
 		led_off(LED2);
 		led_on(LED3);
 		usb_endpoint_init(&usb_endpoint_bulk_out);
-#ifndef HNCH
 		rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_TX);
-#endif
 		vector_table.irq[NVIC_SGPIO_IRQ] = sgpio_isr_tx;
 	} else {
 		led_off(LED2);
 		led_off(LED3);
-#ifndef HNCH
 		rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_OFF);
-#endif
 		vector_table.irq[NVIC_SGPIO_IRQ] = sgpio_isr_rx;
 	}
 

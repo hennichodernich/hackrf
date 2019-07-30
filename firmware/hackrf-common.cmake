@@ -128,6 +128,7 @@ macro(DeclareTargets)
 			${SRC_M4}
 			${PATH_HACKRF_FIRMWARE_COMMON}/adrf6806.c
 			${PATH_HACKRF_FIRMWARE_COMMON}/adrf6806_target.c
+			${PATH_HACKRF_FIRMWARE_COMMON}/rf_path.c
 		)
 	else()
 		SET(SRC_M4

@@ -28,9 +28,13 @@
 
 #include "hackrf-ui.h"
 
+#ifndef HNCH
 #include <mixer.h>
 #include <max2837.h>
 #include <max5864.h>
+#else
+#include <adrf6806.h>
+#endif
 #include <sgpio.h>
 
 #if (defined JAWBREAKER || defined HACKRF_ONE || defined RAD1O)
@@ -330,6 +334,11 @@ void rf_path_init(rf_path_t* const rf_path) {
 	max2837_start(&max2837);
 	
 	mixer_setup(&mixer);
+#else
+	ssp1_set_mode_adrf6806();
+	adrf6806_setup(&adrf6806);
+	//adrf6806_start(&adrf6806); //not implemented
+
 #endif
 	switchctrl_set(rf_path, switchctrl);
 }
@@ -396,15 +405,18 @@ void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t d
 #else
 	switch(direction) {
 		case RF_PATH_DIRECTION_TX:
+			//todo: disable ADRF6806
 			sgpio_configure(&sgpio_config, SGPIO_DIRECTION_TX);
 			break;
 
 		case RF_PATH_DIRECTION_RX:
+			//todo: enable ADRF6806
 			sgpio_configure(&sgpio_config, SGPIO_DIRECTION_RX);
 			break;
 
 		case RF_PATH_DIRECTION_OFF:
 		default:
+			//todo: disable ADRF6806
 			sgpio_configure(&sgpio_config, SGPIO_DIRECTION_RX);
 			break;
 		}

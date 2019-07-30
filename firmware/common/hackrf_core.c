@@ -893,10 +893,10 @@ void pin_setup(void) {
 
 	mixer_bus_setup(&mixer);
 
-	rf_path_pin_setup(&rf_path);
 #else
 	spi_bus_start(&spi_bus_ssp1, &ssp_config_adrf6806);
 #endif
+	rf_path_pin_setup(&rf_path);
 	
 	/* Configure external clock in */
 	scu_pinmux(SCU_PINMUX_GP_CLKIN, SCU_CLK_IN | SCU_CONF_FUNCTION1);
