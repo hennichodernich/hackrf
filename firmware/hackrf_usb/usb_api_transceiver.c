@@ -91,7 +91,6 @@ usb_request_status_t usb_vendor_request_set_freq(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage) 
 {
-#ifndef HNCH
 	if (stage == USB_TRANSFER_STAGE_SETUP) 
 	{
 		usb_transfer_schedule_block(endpoint->out, &set_freq_params, sizeof(set_freq_params_t),
@@ -110,21 +109,6 @@ usb_request_status_t usb_vendor_request_set_freq(
 	{
 		return USB_REQUEST_STATUS_OK;
 	}
-#else
-	if (stage == USB_TRANSFER_STAGE_SETUP) 
-	{
-		usb_transfer_schedule_block(endpoint->out, &set_freq_params, sizeof(set_freq_params_t),
-					    NULL, NULL);
-		return USB_REQUEST_STATUS_OK;
-	} else if (stage == USB_TRANSFER_STAGE_DATA) 
-	{
-		usb_transfer_schedule_ack(endpoint->in);
-		return USB_REQUEST_STATUS_OK;
-	} else
-	{
-		return USB_REQUEST_STATUS_OK;
-	}
-#endif
 }
 
 usb_request_status_t usb_vendor_request_set_sample_rate_frac(
@@ -262,7 +246,6 @@ usb_request_status_t usb_vendor_request_set_freq_explicit(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage)
 {
-#ifndef HNCH
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
 		usb_transfer_schedule_block(endpoint->out, &explicit_params,
 				sizeof(struct set_freq_explicit_params), NULL, NULL);
@@ -277,18 +260,6 @@ usb_request_status_t usb_vendor_request_set_freq_explicit(
 	} else {
 		return USB_REQUEST_STATUS_OK;
 	}
-#else
-	if (stage == USB_TRANSFER_STAGE_SETUP) {
-		usb_transfer_schedule_block(endpoint->out, &explicit_params,
-				sizeof(struct set_freq_explicit_params), NULL, NULL);
-		return USB_REQUEST_STATUS_OK;
-	} else if (stage == USB_TRANSFER_STAGE_DATA) {
-		usb_transfer_schedule_ack(endpoint->in);
-		return USB_REQUEST_STATUS_OK;
-	} else {
-		return USB_REQUEST_STATUS_OK;
-	}
-#endif
 }
 
 static volatile transceiver_mode_t _transceiver_mode = TRANSCEIVER_MODE_OFF;
@@ -314,18 +285,24 @@ void set_transceiver_mode(const transceiver_mode_t new_transceiver_mode) {
 		led_off(LED3);
 		led_on(LED2);
 		usb_endpoint_init(&usb_endpoint_bulk_in);
+#ifndef HNCH
 		rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_RX);
+#endif
 		vector_table.irq[NVIC_SGPIO_IRQ] = sgpio_isr_rx;
 	} else if (_transceiver_mode == TRANSCEIVER_MODE_TX) {
 		led_off(LED2);
 		led_on(LED3);
 		usb_endpoint_init(&usb_endpoint_bulk_out);
+#ifndef HNCH
 		rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_TX);
+#endif
 		vector_table.irq[NVIC_SGPIO_IRQ] = sgpio_isr_tx;
 	} else {
 		led_off(LED2);
 		led_off(LED3);
+#ifndef HNCH
 		rf_path_set_direction(&rf_path, RF_PATH_DIRECTION_OFF);
+#endif
 		vector_table.irq[NVIC_SGPIO_IRQ] = sgpio_isr_rx;
 	}
 

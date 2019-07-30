@@ -35,10 +35,12 @@ extern "C"
 #include "si5351x.h"
 #include "spi_ssp.h"
 
+#ifndef HNCH
 #include "max2837.h"
 #include "max5864.h"
-#ifndef HNCH
 #include "mixer.h"
+#else
+#include "adrf6806.h"
 #endif
 #include "w25q80bv.h"
 #include "sgpio.h"
@@ -260,10 +262,12 @@ extern const ssp_config_t ssp_config_w25q80bv;
 extern const ssp_config_t ssp_config_max2837;
 extern const ssp_config_t ssp_config_max5864;
 
+#ifndef HNCH
 extern max2837_driver_t max2837;
 extern max5864_driver_t max5864;
-#ifndef HNCH
 extern mixer_driver_t mixer;
+#else
+extern adrf6806_driver_t adrf6806;
 #endif
 extern w25q80bv_driver_t spi_flash;
 extern sgpio_config_t sgpio_config;

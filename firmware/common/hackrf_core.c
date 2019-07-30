@@ -25,10 +25,15 @@
 #include "hackrf-ui.h"
 #include "si5351x.h"
 #include "spi_ssp.h"
+#ifndef HNCH
 #include "max2837.h"
 #include "max2837_target.h"
 #include "max5864.h"
 #include "max5864_target.h"
+#else
+#include "adrf6806.h"
+#include "adrf6806_target.h"
+#endif
 #include "w25q80bv.h"
 #include "w25q80bv_target.h"
 #include "i2c_bus.h"
@@ -57,6 +62,7 @@ static struct gpio_t gpio_led[] = {
 
 static struct gpio_t gpio_1v8_enable		= GPIO(3,  6);
 
+#ifndef HNCH
 /* MAX2837 GPIO (XCVR_CTL) PinMux */
 static struct gpio_t gpio_max2837_select	= GPIO(0, 15);
 static struct gpio_t gpio_max2837_enable	= GPIO(2,  6);
@@ -65,6 +71,9 @@ static struct gpio_t gpio_max2837_tx_enable	= GPIO(2,  4);
 
 /* MAX5864 SPI chip select (AD_CS) GPIO PinMux */
 static struct gpio_t gpio_max5864_select	= GPIO(2,  7);
+#else
+static struct gpio_t gpio_adrf6806_select	= GPIO(2,  7);
+#endif
 
 /* RFFC5071 GPIO serial interface PinMux */
 // #ifdef RAD1O
@@ -157,6 +166,7 @@ si5351x_driver_t clock_gen = {
 	.i2c_address = 0x60,
 };
 
+#ifndef HNCH
 const ssp_config_t ssp_config_max2837 = {
 	/* FIXME speed up once everything is working reliably */
 	/*
@@ -193,7 +203,32 @@ spi_bus_t spi_bus_ssp1 = {
 	.transfer = spi_ssp_transfer,
 	.transfer_gather = spi_ssp_transfer_gather,
 };
+#else
+const ssp_config_t ssp_config_adrf6806 = {
+	/* FIXME speed up once everything is working reliably */
+	/*
+	// Freq About 0.0498MHz / 49.8KHz => Freq = PCLK / (CPSDVSR * [SCR+1]) with PCLK=PLL1=204MHz
+	const uint8_t serial_clock_rate = 32;
+	const uint8_t clock_prescale_rate = 128;
+	*/
+	// Freq About 4.857MHz => Freq = PCLK / (CPSDVSR * [SCR+1]) with PCLK=PLL1=204MHz
+	.data_bits = SSP_DATA_8BITS,
+	.serial_clock_rate = 21,
+	.clock_prescale_rate = 2,
+	.gpio_select = &gpio_adrf6806_select,
+};
 
+spi_bus_t spi_bus_ssp1 = {
+	.obj = (void*)SSP1_BASE,
+	.config = &ssp_config_adrf6806,
+	.start = spi_ssp_start,
+	.stop = spi_ssp_stop,
+	.transfer = spi_ssp_transfer,
+	.transfer_gather = spi_ssp_transfer_gather,
+};
+#endif
+
+#ifndef HNCH
 max2837_driver_t max2837 = {
 	.bus = &spi_bus_ssp1,
 	.gpio_enable = &gpio_max2837_enable,
@@ -207,6 +242,12 @@ max5864_driver_t max5864 = {
 	.bus = &spi_bus_ssp1,
 	.target_init = max5864_target_init,
 };
+#else
+adrf6806_driver_t adrf6806 = {
+	.bus = &spi_bus_ssp1,
+	.target_init = adrf6806_target_init,
+};
+#endif
 
 const ssp_config_t ssp_config_w25q80bv = {
 	.data_bits = SSP_DATA_8BITS,
@@ -756,6 +797,7 @@ void cpu_clock_pll1_max_speed(void)
 
 }
 
+#ifndef HNCH
 void ssp1_set_mode_max2837(void)
 {
 	spi_bus_start(max2837.bus, &ssp_config_max2837);
@@ -765,6 +807,12 @@ void ssp1_set_mode_max5864(void)
 {
 	spi_bus_start(max5864.bus, &ssp_config_max5864);
 }
+#else
+void ssp1_set_mode_adrf6806(void)
+{
+	spi_bus_start(adrf6806.bus, &ssp_config_adrf6806);
+}
+#endif
 
 void pin_setup(void) {
 	/* Release CPLD JTAG pins */
@@ -846,6 +894,8 @@ void pin_setup(void) {
 	mixer_bus_setup(&mixer);
 
 	rf_path_pin_setup(&rf_path);
+#else
+	spi_bus_start(&spi_bus_ssp1, &ssp_config_adrf6806);
 #endif
 	
 	/* Configure external clock in */

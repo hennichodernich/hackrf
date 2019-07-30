@@ -19,15 +19,16 @@
  * the Free Software Foundation, Inc., 51 Franklin Street,
  * Boston, MA 02110-1301, USA.
  */
-#ifndef HNCH
-#include "tuning.h"
+#include "tuning_adrf.h"
 
 #include "hackrf-ui.h"
 
 #include <hackrf_core.h>
-#include <mixer.h>
-#include <max2837.h>
+
 #include <sgpio.h>
+#include <mixer.h>
+#include <adrf6806.h>
+
 #include <operacake.h>
 
 #define FREQ_ONE_MHZ     (1000*1000)
@@ -150,5 +151,3 @@ bool set_freq_explicit(const uint64_t if_freq_hz, const uint64_t lo_freq_hz,
 	}
 	return true;
 }
-
-#endif

@@ -27,7 +27,6 @@ include(../hackrf-common.cmake)
 
 set(SRC_M4
 	hackrf_usb.c
-	"${PATH_HACKRF_FIRMWARE_COMMON}/tuning.c"
 	"${PATH_HACKRF_FIRMWARE_COMMON}/streaming.c"
 	sgpio_isr.c
 	usb_bulk_buffer.c
@@ -53,5 +52,17 @@ set(SRC_M4
 	"${PATH_HACKRF_FIRMWARE_COMMON}/xapp058/ports.c"
 	"${PATH_HACKRF_FIRMWARE_COMMON}/rom_iap.c"
 )
+
+	if(BOARD STREQUAL "HNCH")
+		SET(SRC_M4
+			${SRC_M4}
+			"${PATH_HACKRF_FIRMWARE_COMMON}/tuning_adrf.c"
+		)
+	else()
+		SET(SRC_M4
+			${SRC_M4}
+			"${PATH_HACKRF_FIRMWARE_COMMON}/tuning.c"
+		)
+	endif()
 
 DeclareTargets()

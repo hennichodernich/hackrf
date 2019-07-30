@@ -24,7 +24,9 @@
 
 #include <hackrf_core.h>
 #include <usb_queue.h>
+#ifndef HNCH
 #include <max2837.h>
+#endif
 #include <rffc5071.h>
 
 #include <stddef.h>
@@ -32,6 +34,7 @@
 
 #include <hackrf_core.h>
 
+#ifndef HNCH
 usb_request_status_t usb_vendor_request_write_max2837(
 	usb_endpoint_t* const endpoint,
 	const usb_transfer_stage_t stage
@@ -69,6 +72,8 @@ usb_request_status_t usb_vendor_request_read_max2837(
 		return USB_REQUEST_STATUS_OK;
 	}
 }
+
+#endif
 
 usb_request_status_t usb_vendor_request_write_si5351x(
 	usb_endpoint_t* const endpoint,
