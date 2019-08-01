@@ -76,7 +76,7 @@ void adrf6806_setup(adrf6806_driver_t* const drv)
 }
 
 static void adrf6806_write(adrf6806_driver_t* const drv, uint8_t r, uint32_t v) {
-	uint32_t value = (r & 0x07) | (v & 0x0ff8);
+	uint32_t value = (r & 0x07) | (v & 0x00fffff8);
 	uint8_t byte_array[3];
 	int kk;
 
@@ -177,6 +177,11 @@ void adrf6806_set_frequency(adrf6806_driver_t* const drv, uint32_t freq)
 	}
 
 	lo_divider = (divab + 2) * (1 << divsel) * 2;
+    
+    set_ADRF6806_DIV_AB(drv,divab);
+    set_ADRF6806_DIV_SEL(drv,divsel);
+    
+    
 	ideal_divider = (double)(freq * lo_divider) / 2.0 / ADRF6806_PFD_FREQUENCY;
 
 	int_part = (uint8_t)ideal_divider;
