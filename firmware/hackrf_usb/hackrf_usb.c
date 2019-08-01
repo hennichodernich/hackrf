@@ -168,7 +168,9 @@ void usb_set_descriptor_by_serial_number(void)
 
 int main(void) {
 	pin_setup();
+#ifndef HNCH
 	enable_1v8_power();
+#endif
 #if (defined HACKRF_ONE || defined RAD1O)
 	enable_rf_power();
 
@@ -198,10 +200,9 @@ int main(void) {
 
 	usb_run(&usb_device);
 
-#ifndef HNCH
 	rf_path_init(&rf_path);
 	operacake_init();
-#endif
+
 	unsigned int phase = 0;
 
 	while(true) {

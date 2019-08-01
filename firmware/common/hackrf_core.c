@@ -904,6 +904,7 @@ void pin_setup(void) {
 	sgpio_configure_pin_functions(&sgpio_config);
 }
 
+#ifndef HNCH
 void enable_1v8_power(void) {
 	gpio_set(&gpio_1v8_enable);
 }
@@ -911,6 +912,7 @@ void enable_1v8_power(void) {
 void disable_1v8_power(void) {
 	gpio_clear(&gpio_1v8_enable);
 }
+#endif
 
 #ifdef HACKRF_ONE
 void enable_rf_power(void) {
