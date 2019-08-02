@@ -124,6 +124,9 @@ static struct gpio_t gpio_low_high_filt_n	= GPIO(2,  12);
 static struct gpio_t gpio_tx_amp			= GPIO(2,  15);
 static struct gpio_t gpio_rx_lna			= GPIO(5,  15);
 #endif
+#ifdef HNCH
+static struct gpio_t gpio_rx_lna			= GPIO(2,  6);
+#endif
 
 /* CPLD JTAG interface GPIO pins */
 static struct gpio_t gpio_cpld_tdo			= GPIO(5, 18);
@@ -306,6 +309,9 @@ rf_path_t rf_path = {
 	.gpio_low_high_filt = &gpio_low_high_filt,
 	.gpio_low_high_filt_n = &gpio_low_high_filt_n,
 	.gpio_tx_amp = &gpio_tx_amp,
+	.gpio_rx_lna = &gpio_rx_lna,
+#endif
+#ifdef HNCH
 	.gpio_rx_lna = &gpio_rx_lna,
 #endif
 };
