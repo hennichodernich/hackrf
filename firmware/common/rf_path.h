@@ -69,6 +69,9 @@ typedef struct rf_path_t {
 	gpio_t gpio_tx_amp;
 	gpio_t gpio_rx_lna;
 #endif
+#ifdef HNCH
+	gpio_t gpio_rx_lna;
+#endif
 } rf_path_t;
 
 void rf_path_pin_setup(rf_path_t* const rf_path);

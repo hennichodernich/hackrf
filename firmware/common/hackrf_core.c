@@ -125,7 +125,7 @@ static struct gpio_t gpio_tx_amp			= GPIO(2,  15);
 static struct gpio_t gpio_rx_lna			= GPIO(5,  15);
 #endif
 #ifdef HNCH
-static struct gpio_t gpio_rx_lna			= GPIO(2,  6);
+static struct gpio_t gpio_rx_lna			= GPIO(0,  15);
 #endif
 
 /* CPLD JTAG interface GPIO pins */

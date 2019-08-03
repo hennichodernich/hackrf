@@ -72,7 +72,7 @@
    0    1     0    0     0      1    RX high    RX amplified
    1    0     0    0     1      1    RX low     Bypass
    0    0     0    0     0      1    RX low     RX amplified
-*/
+ */
 
 /*
  * Safe (initial) switch settings turn off both amplifiers and enable both amp
@@ -80,7 +80,8 @@
  */
 #define SWITCHCTRL_SAFE (SWITCHCTRL_NO_TX_AMP_PWR | SWITCHCTRL_AMP_BYPASS | SWITCHCTRL_TX | SWITCHCTRL_MIX_BYPASS | SWITCHCTRL_HP | SWITCHCTRL_NO_RX_AMP_PWR)
 #elif (defined HNCH)
-#define SWITCHCTRL_SAFE 0
+#define SWITCHCTRL_NO_RX_AMP_PWR (1 << 5) /* GPO6 turn off RX amp power */
+#define SWITCHCTRL_SAFE (SWITCHCTRL_NO_RX_AMP_PWR)
 #endif
 
 uint8_t switchctrl = SWITCHCTRL_SAFE;
@@ -230,6 +231,20 @@ static void switchctrl_set_rad1o(rf_path_t* const rf_path, uint8_t ctrl) {
 }
 #endif
 
+#ifdef HNCH
+static void switchctrl_set_hnch(rf_path_t* const rf_path, uint8_t ctrl) {
+	if (ctrl & SWITCHCTRL_NO_RX_AMP_PWR)
+	{
+		gpio_clear(rf_path->gpio_rx_lna);
+	}
+	else
+	{
+		gpio_set(rf_path->gpio_rx_lna);
+	}
+}
+#endif
+
+
 static void switchctrl_set(rf_path_t* const rf_path, const uint8_t gpo) {
 #ifdef JAWBREAKER
 	(void) rf_path; /* silence unused param warning */
@@ -238,6 +253,8 @@ static void switchctrl_set(rf_path_t* const rf_path, const uint8_t gpo) {
 	switchctrl_set_hackrf_one(rf_path, gpo);
 #elif RAD1O
 	switchctrl_set_rad1o(rf_path, gpo);
+#elif HNCH
+	switchctrl_set_hnch(rf_path, gpo);
 #else
 	(void)gpo;
 #endif
@@ -318,6 +335,16 @@ void rf_path_pin_setup(rf_path_t* const rf_path) {
 	 * power and enable both amp bypass and mixer bypass.
 	 */
 	switchctrl_set(rf_path, SWITCHCTRL_AMP_BYPASS | SWITCHCTRL_MIX_BYPASS);
+#elif HNCH
+	/* Configure RF switch control signals */
+	scu_pinmux(SCU_RX_LNA,         SCU_GPIO_FAST | SCU_CONF_FUNCTION0);
+	gpio_output(rf_path->gpio_rx_lna);
+
+	/*
+	 * Safe (initial) switch settings turn off both amplifiers and antenna port
+	 * power and enable both amp bypass and mixer bypass.
+	 */
+	switchctrl_set(rf_path, SWITCHCTRL_NO_RX_AMP_PWR);
 #else
 	(void) rf_path; /* silence unused param warning */
 #endif
@@ -328,11 +355,11 @@ void rf_path_init(rf_path_t* const rf_path) {
 	ssp1_set_mode_max5864();
 	max5864_setup(&max5864);
 	max5864_shutdown(&max5864);
-	
+
 	ssp1_set_mode_max2837();
 	max2837_setup(&max2837);
 	max2837_start(&max2837);
-	
+
 	mixer_setup(&mixer);
 #else
 	ssp1_set_mode_adrf6806();
@@ -366,7 +393,7 @@ void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t d
 		max2837_tx(&max2837);
 		sgpio_configure(&sgpio_config, SGPIO_DIRECTION_TX);
 		break;
-	
+
 	case RF_PATH_DIRECTION_RX:
 		rf_path->switchctrl &= ~SWITCHCTRL_TX;
 		if( (rf_path->switchctrl & SWITCHCTRL_AMP_BYPASS) == 0 ) {
@@ -385,7 +412,7 @@ void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t d
 		max2837_rx(&max2837);
 		sgpio_configure(&sgpio_config, SGPIO_DIRECTION_RX);
 		break;
-		
+
 	case RF_PATH_DIRECTION_OFF:
 	default:
 #ifdef HACKRF_ONE
@@ -404,22 +431,22 @@ void rf_path_set_direction(rf_path_t* const rf_path, const rf_path_direction_t d
 	}
 #else
 	switch(direction) {
-		case RF_PATH_DIRECTION_TX:
-			//todo: disable ADRF6806
-			sgpio_configure(&sgpio_config, SGPIO_DIRECTION_TX);
-			break;
+	case RF_PATH_DIRECTION_TX:
+		//todo: disable ADRF6806
+		sgpio_configure(&sgpio_config, SGPIO_DIRECTION_TX);
+		break;
 
-		case RF_PATH_DIRECTION_RX:
-			//todo: enable ADRF6806
-			sgpio_configure(&sgpio_config, SGPIO_DIRECTION_RX);
-			break;
+	case RF_PATH_DIRECTION_RX:
+		//todo: enable ADRF6806
+		sgpio_configure(&sgpio_config, SGPIO_DIRECTION_RX);
+		break;
 
-		case RF_PATH_DIRECTION_OFF:
-		default:
-			//todo: disable ADRF6806
-			sgpio_configure(&sgpio_config, SGPIO_DIRECTION_RX);
-			break;
-		}
+	case RF_PATH_DIRECTION_OFF:
+	default:
+		//todo: disable ADRF6806
+		sgpio_configure(&sgpio_config, SGPIO_DIRECTION_RX);
+		break;
+	}
 #endif
 	switchctrl_set(rf_path, rf_path->switchctrl);
 
@@ -434,12 +461,12 @@ void rf_path_set_filter(rf_path_t* const rf_path, const rf_path_filter_t filter)
 		rf_path->switchctrl |= SWITCHCTRL_MIX_BYPASS;
 		mixer_disable(&mixer);
 		break;
-		
+
 	case RF_PATH_FILTER_LOW_PASS:
 		rf_path->switchctrl &= ~(SWITCHCTRL_HP | SWITCHCTRL_MIX_BYPASS);
 		mixer_enable(&mixer);
 		break;
-		
+
 	case RF_PATH_FILTER_HIGH_PASS:
 		rf_path->switchctrl &= ~SWITCHCTRL_MIX_BYPASS;
 		rf_path->switchctrl |= SWITCHCTRL_HP;
@@ -465,6 +492,12 @@ void rf_path_set_lna(rf_path_t* const rf_path, const uint_fast8_t enable) {
 	} else {
 		/* AMP_BYPASS=1, NO_RX_AMP_PWR=1, NO_TX_AMP_PWR=1 */
 		rf_path->switchctrl |= SWITCHCTRL_AMP_BYPASS | SWITCHCTRL_NO_TX_AMP_PWR | SWITCHCTRL_NO_RX_AMP_PWR;
+	}
+#else
+	if( enable ) {
+		rf_path->switchctrl &= ~(SWITCHCTRL_NO_RX_AMP_PWR);
+	} else {
+		rf_path->switchctrl |= SWITCHCTRL_NO_RX_AMP_PWR;
 	}
 #endif
 	switchctrl_set(rf_path, rf_path->switchctrl);

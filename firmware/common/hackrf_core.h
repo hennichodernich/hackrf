@@ -214,6 +214,9 @@ extern "C"
 #define SCU_TX_AMP          (P5_6) /* GPIO2[15] on P5_6 */
 #define SCU_RX_LNA          (P6_7) /* GPIO5[15] on P6_7 */
 #endif
+#ifdef HNCH
+#define SCU_RX_LNA          (P1_20) /* GPIO0[15] on P1_20 */
+#endif
 
 /* TODO add other Pins */
 #define SCU_PINMUX_GPIO3_8  (P7_0)  /* GPIO3[8] */
@@ -259,8 +262,12 @@ void delay(uint32_t duration);
 /* TODO: Hide these configurations */
 extern si5351x_driver_t clock_gen;
 extern const ssp_config_t ssp_config_w25q80bv;
+#ifndef HNCH
 extern const ssp_config_t ssp_config_max2837;
 extern const ssp_config_t ssp_config_max5864;
+#else
+extern const ssp_config_t ssp_config_adrf6806;
+#endif
 
 #ifndef HNCH
 extern max2837_driver_t max2837;
