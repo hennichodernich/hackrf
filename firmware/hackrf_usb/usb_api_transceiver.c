@@ -140,15 +140,11 @@ usb_request_status_t usb_vendor_request_set_amp_enable(
 	if (stage == USB_TRANSFER_STAGE_SETUP) {
 		switch (endpoint->setup.value) {
 		case 0:
-#ifndef HNCH
 			rf_path_set_lna(&rf_path, 0);
-#endif
 			usb_transfer_schedule_ack(endpoint->in);
 			return USB_REQUEST_STATUS_OK;
 		case 1:
-#ifndef HNCH
 			rf_path_set_lna(&rf_path, 1);
-#endif
 			usb_transfer_schedule_ack(endpoint->in);
 			return USB_REQUEST_STATUS_OK;
 		default:

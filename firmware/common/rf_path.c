@@ -80,8 +80,8 @@
  */
 #define SWITCHCTRL_SAFE (SWITCHCTRL_NO_TX_AMP_PWR | SWITCHCTRL_AMP_BYPASS | SWITCHCTRL_TX | SWITCHCTRL_MIX_BYPASS | SWITCHCTRL_HP | SWITCHCTRL_NO_RX_AMP_PWR)
 #elif (defined HNCH)
-#define SWITCHCTRL_NO_RX_AMP_PWR (1 << 5) /* GPO6 turn off RX amp power */
-#define SWITCHCTRL_SAFE (SWITCHCTRL_NO_RX_AMP_PWR)
+#define SWITCHCTRL_RX_LNA_DISABLE (1 << 5) 
+#define SWITCHCTRL_SAFE (SWITCHCTRL_RX_LNA_DISABLE)
 #endif
 
 uint8_t switchctrl = SWITCHCTRL_SAFE;
@@ -233,13 +233,13 @@ static void switchctrl_set_rad1o(rf_path_t* const rf_path, uint8_t ctrl) {
 
 #ifdef HNCH
 static void switchctrl_set_hnch(rf_path_t* const rf_path, uint8_t ctrl) {
-	if (ctrl & SWITCHCTRL_NO_RX_AMP_PWR)
+	if (ctrl & SWITCHCTRL_RX_LNA_DISABLE)
 	{
-		gpio_clear(rf_path->gpio_rx_lna);
+		gpio_set(rf_path->gpio_rx_lna);
 	}
 	else
 	{
-		gpio_set(rf_path->gpio_rx_lna);
+		gpio_clear(rf_path->gpio_rx_lna);
 	}
 }
 #endif
@@ -344,7 +344,7 @@ void rf_path_pin_setup(rf_path_t* const rf_path) {
 	 * Safe (initial) switch settings turn off both amplifiers and antenna port
 	 * power and enable both amp bypass and mixer bypass.
 	 */
-	switchctrl_set(rf_path, SWITCHCTRL_NO_RX_AMP_PWR);
+	switchctrl_set(rf_path, SWITCHCTRL_RX_LNA_DISABLE);
 #else
 	(void) rf_path; /* silence unused param warning */
 #endif
@@ -495,9 +495,9 @@ void rf_path_set_lna(rf_path_t* const rf_path, const uint_fast8_t enable) {
 	}
 #else
 	if( enable ) {
-		rf_path->switchctrl &= ~(SWITCHCTRL_NO_RX_AMP_PWR);
+		rf_path->switchctrl &= ~(SWITCHCTRL_RX_LNA_DISABLE);
 	} else {
-		rf_path->switchctrl |= SWITCHCTRL_NO_RX_AMP_PWR;
+		rf_path->switchctrl |= SWITCHCTRL_RX_LNA_DISABLE;
 	}
 #endif
 	switchctrl_set(rf_path, rf_path->switchctrl);
