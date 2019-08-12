@@ -215,7 +215,7 @@ extern "C"
 #define SCU_RX_LNA          (P6_7) /* GPIO5[15] on P6_7 */
 #endif
 #ifdef HNCH
-#define SCU_RX_LNA          (P1_20) /* GPIO0[15] on P1_20 */
+#define SCU_RX_LNA          SCU_PINMUX_SGPIO14
 #endif
 
 /* TODO add other Pins */
