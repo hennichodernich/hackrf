@@ -12,6 +12,8 @@ void ltc6912_setup(ltc6912_driver_t* const drv)
 }
 
 void ltc6912_write(ltc6912_driver_t* const drv, uint8_t v) {
+
+	ssp1_set_mode_ltc6912();
 	spi_bus_transfer(drv->bus, &v, 1);
 }
 
@@ -24,7 +26,7 @@ ltc6912_mode_t ltc6912_mode(ltc6912_driver_t* const drv) {
 	return drv->mode;
 }
 
-bool ltc6912_set_bb_gain(ltc6912_driver_t* const drv, const uint8_t gain_db) {
+bool ltc6912_set_bb_gain(ltc6912_driver_t* const drv, const uint32_t gain_db) {
 	uint8_t gainval = 0x00;	// gain disabled
 
 	if (gain_db >= 40)

@@ -52,6 +52,6 @@ extern void ltc6912_write(ltc6912_driver_t* const drv, uint8_t v);
 ltc6912_mode_t ltc6912_mode(ltc6912_driver_t* const drv);
 void ltc6912_set_mode(ltc6912_driver_t* const drv, const ltc6912_mode_t new_mode);
 
-bool ltc6912_set_bb_gain(ltc6912_driver_t* const drv, const uint8_t gain_db);
+bool ltc6912_set_bb_gain(ltc6912_driver_t* const drv, const uint32_t gain_db);
 
 #endif // __LTC6912_H

@@ -184,7 +184,9 @@ usb_request_status_t usb_vendor_request_set_vga_gain(
 			endpoint->buffer[0] = value;
 			if(value) hackrf_ui_setBBVGAGain(endpoint->setup.index);
 #else
-			endpoint->buffer[0] = 1;
+			const uint8_t value = ltc6912_set_bb_gain(&ltc6912, endpoint->setup.index);
+			endpoint->buffer[0] = value;
+			if(value) hackrf_ui_setBBVGAGain(endpoint->setup.index);
 #endif
 			usb_transfer_schedule_block(endpoint->in, &endpoint->buffer, 1,
 						    NULL, NULL);

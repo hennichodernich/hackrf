@@ -102,6 +102,9 @@ static inline void adrf6806_reg_commit(adrf6806_driver_t* const drv, uint8_t r)
 void adrf6806_regs_commit(adrf6806_driver_t* const drv)
 {
 	int r;
+
+	ssp1_set_mode_adrf6806();
+
 	for(r = 0; r < ADRF6806_NUM_REGS; r++) {
 		if ((drv->regs_dirty >> r) & 0x1) {
 			adrf6806_reg_commit(drv, r);
