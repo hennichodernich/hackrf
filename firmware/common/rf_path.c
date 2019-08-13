@@ -337,7 +337,7 @@ void rf_path_pin_setup(rf_path_t* const rf_path) {
 	switchctrl_set(rf_path, SWITCHCTRL_AMP_BYPASS | SWITCHCTRL_MIX_BYPASS);
 #elif HNCH
 	/* Configure RF switch control signals */
-	scu_pinmux(SCU_RX_LNA,         SCU_GPIO_FAST | SCU_CONF_FUNCTION4); //shouldn't be necessary, as it is already configured in sgpio.c
+	scu_pinmux(SCU_RX_LNA,         SCU_GPIO_FAST | SCU_CONF_FUNCTION0); 
 	gpio_output(rf_path->gpio_rx_lna);
 
 	/*

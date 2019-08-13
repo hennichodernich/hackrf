@@ -139,6 +139,7 @@ extern "C"
 #define SCU_XCVR_B7         (P9_3)  /* GPIO[] on P8_3 */
 #endif
 
+#ifndef HNCH
 #define SCU_XCVR_ENABLE     (P4_6)  /* GPIO2[6] on P4_6 */
 #define SCU_XCVR_RXENABLE   (P4_5)  /* GPIO2[5] on P4_5 */
 #define SCU_XCVR_TXENABLE   (P4_4)  /* GPIO2[4] on P4_4 */
@@ -146,6 +147,9 @@ extern "C"
 
 /* MAX5864 SPI chip select (AD_CS) GPIO PinMux */
 #define SCU_AD_CS           (P5_7)  /* GPIO2[7] on P5_7 */
+#else
+#define SCU_RX_CS           (P5_7)  /* GPIO2[7] on P5_7 */
+#endif
 
 /* RFFC5071 GPIO serial interface PinMux */
 #if (defined JAWBREAKER || defined HACKRF_ONE)
@@ -215,7 +219,7 @@ extern "C"
 #define SCU_RX_LNA          (P6_7) /* GPIO5[15] on P6_7 */
 #endif
 #ifdef HNCH
-#define SCU_RX_LNA          SCU_PINMUX_SGPIO14
+#define SCU_RX_LNA	   (P1_7)  /* GPIO1[0] on P1_7 */
 #endif
 
 /* TODO add other Pins */
@@ -285,8 +289,13 @@ extern i2c_bus_t i2c0;
 void cpu_clock_init(void);
 void cpu_clock_pll1_low_speed(void);
 void cpu_clock_pll1_max_speed(void);
+#ifndef HNCH
 void ssp1_set_mode_max2837(void);
 void ssp1_set_mode_max5864(void);
+#else
+void ssp1_set_mode_adrf6806(void);
+#endif
+
 
 void pin_setup(void);
 
