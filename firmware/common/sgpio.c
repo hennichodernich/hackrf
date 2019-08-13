@@ -48,7 +48,7 @@ void sgpio_configure_pin_functions(sgpio_config_t* const config) {
 	scu_pinmux(SCU_PINMUX_SGPIO13, SCU_GPIO_FAST | SCU_CONF_FUNCTION4);	/* GPIO5[12] */
 	scu_pinmux(SCU_PINMUX_SGPIO14, SCU_GPIO_FAST | SCU_CONF_FUNCTION4);	/* GPIO5[13] */
 	scu_pinmux(SCU_PINMUX_SGPIO15, SCU_GPIO_FAST | SCU_CONF_FUNCTION4);	/* GPIO5[14] */
-
+	
 	sgpio_cpld_stream_rx_set_q_invert(config, 0);
     hw_sync_enable(0);
 
@@ -102,7 +102,7 @@ void sgpio_configure(
 		? (0xFF << 0)
 		: (0x00 << 0);
 	SGPIO_GPIO_OENREG =
-	      (1L << 14)	// GPDMA burst request SGPIO14 active
+	      (1L << 14) 	// GPDMA burst request SGPIO14 active
 	    | (1L << 11)	// direction output SGPIO11 active 
 	    | (1L << 10)	// disable output SGPIO10 active
 	    | (0L <<  9)	// capture input SGPIO9 (output i is tri-stated)
@@ -129,8 +129,7 @@ void sgpio_configure(
 	SGPIO_OUT_MUX_CFG(14) =		// SGPIO14: Output: internal GPDMA burst request
 		  SGPIO_OUT_MUX_CFG_P_OE_CFG(0) /* 0x4 dout_oem1 (1-bit mode) */
 		| SGPIO_OUT_MUX_CFG_P_OUT_CFG(0) /* 0x0 dout_doutm1 (1-bit mode) */
-		;
-
+		; 
 	const uint_fast8_t output_multiplexing_mode =
 		config->slice_mode_multislice ? 11 : 9;
 	/* SGPIO0 to SGPIO7 */

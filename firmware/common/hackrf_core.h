@@ -148,6 +148,9 @@ extern "C"
 
 /* MAX5864 SPI chip select (AD_CS) GPIO PinMux */
 #define SCU_AD_CS           (P5_7)  /* GPIO2[7] on P5_7 */
+#else
+#define SCU_RX_CS           (P5_7)  /* GPIO2[7] on P5_7 */
+#define SCU_PGA_CS         (P1_20) /* GPIO0[15] on P1_20 */
 #endif
 
 /* RFFC5071 GPIO serial interface PinMux */
@@ -218,9 +221,7 @@ extern "C"
 #define SCU_RX_LNA          (P6_7) /* GPIO5[15] on P6_7 */
 #endif
 #ifdef HNCH
-#define SCU_PGA_CS         (P1_20) /* GPIO0[15] on P1_20 */
-#define SCU_RX_CS           (P5_7)  /* GPIO2[7] on P5_7 */
-#define SCU_RX_LNA          SCU_PINMUX_SGPIO14
+#define SCU_RX_LNA	   (P1_7)  /* GPIO1[0] on P1_7 */
 #endif
 
 /* TODO add other Pins */
