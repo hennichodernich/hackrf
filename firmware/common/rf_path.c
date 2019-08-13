@@ -34,6 +34,7 @@
 #include <max5864.h>
 #else
 #include <adrf6806.h>
+#include <ltc6912.h>
 #endif
 #include <sgpio.h>
 
@@ -364,6 +365,8 @@ void rf_path_init(rf_path_t* const rf_path) {
 #else
 	ssp1_set_mode_adrf6806();
 	adrf6806_setup(&adrf6806);
+	ssp1_set_mode_ltc6912();
+	ltc6912_setup(&ltc6912);
 	//adrf6806_start(&adrf6806); //not implemented
 
 #endif

@@ -36,5 +36,5 @@ void adrf6806_target_init(adrf6806_driver_t* const drv) {
 	 * Configure CS_AD pin to keep the MAX5864 SPI disabled while we use the
 	 * SPI bus for the MAX2837. FIXME: this should probably be somewhere else.
 	 */
-	scu_pinmux(SCU_AD_CS, SCU_GPIO_FAST);
+	scu_pinmux(SCU_RX_CS, SCU_GPIO_FAST);
 }

@@ -33,6 +33,8 @@
 #else
 #include "adrf6806.h"
 #include "adrf6806_target.h"
+#include "ltc6912.h"
+#include "ltc6912_target.h"
 #endif
 #include "w25q80bv.h"
 #include "w25q80bv_target.h"
@@ -72,6 +74,7 @@ static struct gpio_t gpio_max2837_tx_enable	= GPIO(2,  4);
 /* MAX5864 SPI chip select (AD_CS) GPIO PinMux */
 static struct gpio_t gpio_max5864_select	= GPIO(2,  7);
 #else
+static struct gpio_t gpio_ltc6912_select	= GPIO(0, 15);
 static struct gpio_t gpio_adrf6806_select	= GPIO(2,  7);
 #endif
 
@@ -221,6 +224,20 @@ const ssp_config_t ssp_config_adrf6806 = {
 	.gpio_select = &gpio_adrf6806_select,
 };
 
+const ssp_config_t ssp_config_ltc6912 = {
+	/* FIXME speed up once everything is working reliably */
+	/*
+	// Freq About 0.0498MHz / 49.8KHz => Freq = PCLK / (CPSDVSR * [SCR+1]) with PCLK=PLL1=204MHz
+	const uint8_t serial_clock_rate = 32;
+	const uint8_t clock_prescale_rate = 128;
+	*/
+	// Freq About 4.857MHz => Freq = PCLK / (CPSDVSR * [SCR+1]) with PCLK=PLL1=204MHz
+	.data_bits = SSP_DATA_8BITS,
+	.serial_clock_rate = 21,
+	.clock_prescale_rate = 2,
+	.gpio_select = &gpio_ltc6912_select,
+};
+
 spi_bus_t spi_bus_ssp1 = {
 	.obj = (void*)SSP1_BASE,
 	.config = &ssp_config_adrf6806,
@@ -249,6 +266,11 @@ max5864_driver_t max5864 = {
 adrf6806_driver_t adrf6806 = {
 	.bus = &spi_bus_ssp1,
 	.target_init = adrf6806_target_init,
+};
+
+ltc6912_driver_t ltc6912 = {
+	.bus = &spi_bus_ssp1,
+	.target_init = ltc6912_target_init,
 };
 #endif
 
@@ -817,6 +839,11 @@ void ssp1_set_mode_max5864(void)
 void ssp1_set_mode_adrf6806(void)
 {
 	spi_bus_start(adrf6806.bus, &ssp_config_adrf6806);
+}
+
+void ssp1_set_mode_ltc6912(void)
+{
+	spi_bus_start(ltc6912.bus, &ssp_config_ltc6912);
 }
 #endif
 
